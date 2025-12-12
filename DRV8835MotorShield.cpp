@@ -3,7 +3,7 @@
 // Constructors ////////////////////////////////////////////////////////////////
 
 DRV8835MotorShield::DRV8835MotorShield() :
-  _M1DIR(7), _M1PWM(9), _M2DIR(8), _M2PWM(10)
+  _M1DIR(7), _M1PWM(9), _M2DIR(8), _M2PWM(3)
 {
 }
 
@@ -42,24 +42,26 @@ void DRV8835MotorShield::initPinsAndMaybeTimer()
   pinMode(_M2DIR, OUTPUT);
   digitalWrite(_M2DIR, LOW);
 #ifdef DRV8835MOTORSHIELD_TIMER1_AVAILABLE
-  if (_M1PWM == _M1PWM_TIMER1_PIN && _M2PWM == _M2PWM_TIMER1_PIN)
+  if (_M1PWM == _M1PWM_TIMER1_PIN)
   {
 	// timer 1 configuration
 	// prescaler: clockI/O / 1
 	// outputs enabled
 	// phase-correct PWM
-	// top of 400
+	// top of 255
 	//
 	// PWM frequency calculation
-	// 16MHz / 1 (prescaler) / 2 (phase-correct) / 400 (top) = 20kHz
-	TCCR1A = 0b10100000;
+	// 16MHz / 1 (prescaler) / 2 (phase-correct) / 255 (top) = 20kHz
+	TCCR1A = 0b10000000;
 	TCCR1B = 0b00010001;
-	ICR1 = 400;
+	ICR1 = 255;
+	TCCR2A = 0b00100001;
+  	TCCR2B = 0b00000001;
   }
 #endif
 }
 
-// speed should be a number between -400 and 400
+// speed should be a number between -255 and 255
 void DRV8835MotorShield::setM1Speed(int speed)
 {
   init(); // initialize if necessary
@@ -71,20 +73,20 @@ void DRV8835MotorShield::setM1Speed(int speed)
     speed = -speed; // make speed a positive quantity
     reverse = 1;    // preserve the direction
   }
-  if (speed > 400)  // max
-    speed = 400;
+  if (speed > 255)  // max
+    speed = 255;
 
 #ifdef DRV8835MOTORSHIELD_TIMER1_AVAILABLE
-  if (_M1PWM == _M1PWM_TIMER1_PIN && _M2PWM == _M2PWM_TIMER1_PIN)
+  if (_M1PWM == _M1PWM_TIMER1_PIN)
   {
     OCR1A = speed;
   }
   else
   {
-    analogWrite(_M1PWM, speed * 51 / 80); // map 400 to 255
+    analogWrite(_M1PWM, speed);
   }
 #else
-  analogWrite(_M1PWM, speed * 51 / 80); // default to using analogWrite, mapping 400 to 255
+  analogWrite(_M1PWM, speed ); // default to using analogWrite 
 #endif
 
   if (reverse ^ _flipM1) // flip if speed was negative or _flipM1 setting is active, but not both
@@ -93,7 +95,7 @@ void DRV8835MotorShield::setM1Speed(int speed)
     digitalWrite(_M1DIR, LOW);
 }
 
-// speed should be a number between -400 and 400
+// speed should be a number between -255 and 255
 void DRV8835MotorShield::setM2Speed(int speed)
 {
   init(); // initialize if necessary
@@ -105,20 +107,20 @@ void DRV8835MotorShield::setM2Speed(int speed)
     speed = -speed;  // make speed a positive quantity
     reverse = 1;  // preserve the direction
   }
-  if (speed > 400)  // max PWM duty cycle
-    speed = 400;
+  if (speed > 255)  // max PWM duty cycle
+    speed = 255;
 
 #ifdef DRV8835MOTORSHIELD_TIMER1_AVAILABLE
-  if (_M1PWM == _M1PWM_TIMER1_PIN && _M2PWM == _M2PWM_TIMER1_PIN)
+  if (_M1PWM == _M1PWM_TIMER1_PIN )
   {
-    OCR1B = speed;
+    OCR2B = speed;
   }
   else
   {
-    analogWrite(_M2PWM, speed * 51 / 80); // map 400 to 255
+    analogWrite(_M2PWM, speed * 51 / 80); // map 255 to 255
   }
 #else
-  analogWrite(_M2PWM, speed * 51 / 80); // default to using analogWrite, mapping 400 to 255
+  analogWrite(_M2PWM, speed * 51 / 80); // default to using analogWrite, mapping -255 to 255
 #endif
 
   if (reverse ^ _flipM2) // flip if speed was negative or _flipM2 setting is active, but not both
@@ -128,7 +130,7 @@ void DRV8835MotorShield::setM2Speed(int speed)
 }
 
 // set speed for both motors
-// speed should be a number between -400 and 400
+// speed should be a number between -255 and 255
 void DRV8835MotorShield::setSpeeds(int m1Speed, int m2Speed){
   setM1Speed(m1Speed);
   setM2Speed(m2Speed);
@@ -137,7 +139,7 @@ void DRV8835MotorShield::setSpeeds(int m1Speed, int m2Speed){
 void DRV8835MotorShield::flipM1(boolean flip)
 {
   _flipM1 = flip;
-}
+}ty.6
 
 void DRV8835MotorShield::flipM2(boolean flip)
 {
