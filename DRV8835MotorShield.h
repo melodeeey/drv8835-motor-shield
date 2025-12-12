@@ -30,7 +30,7 @@ class DRV8835MotorShield
     uint8_t _M1PWM;
     static const uint8_t _M1PWM_TIMER1_PIN = 9;
     uint8_t _M2PWM;
-    static const uint8_t _M2PWM_TIMER1_PIN = 10;
+    static const uint8_t _M2PWM_TIMER1_PIN = 3;
 
     bool _flipM1 = false;
     bool _flipM2 = false;
