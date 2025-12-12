@@ -139,7 +139,7 @@ void DRV8835MotorShield::setSpeeds(int m1Speed, int m2Speed){
 void DRV8835MotorShield::flipM1(boolean flip)
 {
   _flipM1 = flip;
-}ty.6
+}
 
 void DRV8835MotorShield::flipM2(boolean flip)
 {
